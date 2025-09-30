@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
     Dialog,
     DialogTrigger,
@@ -22,6 +23,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ trigger }) => {
+    const router = useRouter();
     const { user, setUser } = useUser();
     const [tab, setTab] = useState("log in");
     const [loginForm, setLoginForm] = useState({ username: "", password: "" });
@@ -62,7 +64,10 @@ const Login: React.FC<LoginProps> = ({ trigger }) => {
 
             showToast("Login successful!");
             if (data.user && data.user.username) {
-                setUser({ username: data.user.username });
+                setUser({
+                    username: data.user.username,
+                    createdAt: data.user.createdAt,
+                });
                 setIsDialogOpen(false);
             }
         } catch (err) {
@@ -103,12 +108,21 @@ const Login: React.FC<LoginProps> = ({ trigger }) => {
         }
     };
 
+    if (user) {
+        return (
+            <Button variant="outline" onClick={() => router.push(`/user/${user.username}`)}>
+                <IoMdPerson />
+                {user.username}
+            </Button>
+        );
+    }
+
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline">
                     <IoMdPerson />
-                    {user ? user.username : trigger}
+                    {trigger ?? "Log in"}
                 </Button>
             </DialogTrigger>
 

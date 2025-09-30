@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "src": "nextjs-watchd",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "studio-watchd",
+      "use": "@vercel/node"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import React, {
 
 interface User {
     username: string;
+    createdAt?: string | Date;
 }
 
 interface UserContextType {
@@ -23,7 +24,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        if (typeof window !== "undefined") { // Ensure code runs only in browser
+        if (typeof window !== "undefined") {
             const storedUser = localStorage.getItem("currentUser");
             if (storedUser) {
                 try {

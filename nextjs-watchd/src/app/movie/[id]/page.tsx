@@ -3,6 +3,7 @@ import Link from "next/link";
 import { IoIosArrowBack, IoMdPerson } from "react-icons/io";
 import { Badge } from "@/components/ui/badge";
 import { TmdbMovieNowPlaying } from "@/lib/tmdb";
+import {AddToListButton} from "@/components/addToList";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -70,7 +71,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     <div className="flex flex-col gap-8">
                         <div className="flex justify-between items-center">
                             <div>
-                                <h1 className="text-4xl font-semibold tracking-tight">{movie.title}</h1>
+                                <span className="inline-flex items-center gap-2">
+                                    <h1 className="text-4xl font-semibold tracking-tight">{movie.title}</h1>
+                                    <AddToListButton movie={movie} />
+                                </span>
                                 <p className="text-muted-foreground mt-2">{movie.release_date?.slice(0, 4)} • {movie.runtime} min</p>
                             </div>
                             <div className="text-center text-muted-foreground">

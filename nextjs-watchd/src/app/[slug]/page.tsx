@@ -17,9 +17,18 @@ const options = { next: { revalidate: 30 } };
 export default async function PostPage({
                                            params,
                                        }: {
-    params: Promise<{ slug: string }>;
+    params: { slug: string };
 }) {
-    const post = await client.fetch<SanityDocument>(POST_QUERY, await params, options);
+    const post = await client.fetch<SanityDocument>(POST_QUERY, { slug: params.slug }, options);
+
+    if (!post) {
+        return (
+            <div className="container mx-auto min-h-screen max-w-3xl p-8">
+                <h1 className="text-2xl font-bold">Post not found</h1>
+            </div>
+        );
+    }
+
     const postImageUrl = post.image
         ? urlFor(post.image)?.width(550).height(310).url()
         : null;

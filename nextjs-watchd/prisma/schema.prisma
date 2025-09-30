@@ -14,10 +14,56 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement()) // Or String @id @default(uuid())
-  username  String   @unique
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt // Good practice
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  favorites Favorite[]
+  recents   Recent[]
+  movies    UserMovie[]
+  series    UserSeries[]
 }
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  tmdbId    Int
+  mediaType String
+  label     String?
+  position  Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, position])
+}
+
+model Recent {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  tmdbId    Int
+  mediaType String
+  createdAt DateTime @default(now())
+}
+
+model UserMovie {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  tmdbId    Int
+  label     String
+  createdAt DateTime @default(now())
+}
+
+model UserSeries {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  tmdbId    Int
+  label     String
+  createdAt DateTime @default(now())
+}
+

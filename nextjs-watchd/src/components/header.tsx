@@ -1,13 +1,12 @@
-"use client"; // <-- ADD THIS LINE to make it a Client Component
+"use client";
 
-import React, { useEffect, useState } from "react"; // <-- IMPORT THESE HOOKS
+import React, { useEffect, useState } from "react";
 import { client } from "@/sanity/client";
 import { Search } from "@/components/search";
 import Login from "@/components/login";
 
 const HOME_QUERY = `*[_type == "home"][0]{ title, placeholder, account, icon }`;
 
-// Define an interface for the data fetched from Sanity
 interface HomeData {
     title: string;
     placeholder: string;
@@ -25,7 +24,6 @@ export const Header = () => {
                 setHome(data);
             } catch (error) {
                 console.error("Failed to fetch home data:", error);
-                // Handle error state if necessary
             }
         };
         fetchHomeData();
