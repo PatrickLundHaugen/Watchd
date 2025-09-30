@@ -1,9 +1,8 @@
-// app/api/user/[username]/movie-list/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(req: NextRequest, { params }: { params: { username: string } }) {
-    const { username } = params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
 
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
@@ -18,8 +17,8 @@ export async function GET(req: NextRequest, { params }: { params: { username: st
     return NextResponse.json(movies);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { username: string } }) {
-    const { username } = params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
     const { tmdbId, label } = await req.json();
 
     const user = await prisma.user.findUnique({ where: { username } });

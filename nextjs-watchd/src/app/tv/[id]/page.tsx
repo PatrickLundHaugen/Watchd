@@ -6,6 +6,7 @@ import {
     TmdbTvDetails
 } from '@/lib/tmdb';
 import Link from "next/link";
+import Image from 'next/image'
 import { IoMdPerson } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { Badge } from "@/components/ui/badge";
@@ -100,10 +101,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <Link href="/" className="inline-flex items-center gap-1 hover:underline"><IoIosArrowBack />Back to home</Link>
             <div className="flex gap-4">
                 {tv.poster_path && (
-                    <img
+                    <Image
                         src={`https://image.tmdb.org/t/p/w342${tv.poster_path}`}
                         alt={tv.name}
-                        width={342}
+                        width={500}
                         height={750}
                         className="rounded-lg aspect-[2/3] md:w-72 shadow-lg"
                     />
@@ -128,7 +129,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             {renderCrewSection(credits, "Writers", ["Writer", "Story"])}
                         </div>
                         <div>
-                            {tv.tagline && <p className="italic text-muted-foreground">"{tv.tagline}"</p>}
+                            {tv.tagline && <p className="italic text-muted-foreground">{`"${tv.tagline}"`}</p>}
                             <p className="mt-2">{tv.overview}</p>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -153,8 +154,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         return (
                             <div key={actor.id} className="flex items-center gap-2">
                                 {actor.profile_path ? (
-                                    <img
+                                    <Image
                                         src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
+                                        width={500}
+                                        height={750}
                                         alt={actor.name}
                                         className="size-16 rounded-lg object-cover shadow-lg"
                                     />
@@ -179,8 +182,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         {similarShows.map((show) => (
                             <div key={show.id} className="flex flex-col bg-card rounded-xl border border-input shadow-sm overflow-hidden">
                                 {show.poster_path ? (
-                                    <img
+                                    <Image
                                         src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                                        width={500}
+                                        height={750}
                                         alt={show.name}
                                         className="rounded"
                                     />

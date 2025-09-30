@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getMovieDetails, getTvDetails } from "@/lib/tmdb";
 
-export async function GET(req: NextRequest, { params }: { params: { username: string } }) {
-    const { username } = params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
 
     const user = await prisma.user.findUnique({
         where: { username },
@@ -20,17 +20,17 @@ export async function GET(req: NextRequest, { params }: { params: { username: st
     });
 
     const fullFavorites = await Promise.all(
-        favoriteRecords.map(async (item) => {
+        favoriteRecords.map(async (item: { tmdbId: number; mediaType: string; label: string | null }) => {
             try {
                 if (item.mediaType === "movie") {
-                    return await getMovieDetails(item.tmdbId);
+                    return await getMovieDetails(item.tmdbId.toString());
                 } else {
-                    return await getTvDetails(item.tmdbId);
+                    return await getTvDetails(item.tmdbId.toString());
                 }
             } catch (error) {
                 console.error(`Failed to fetch TMDB details for favorite ${item.tmdbId}:`, error);
                 return {
-                    id: item.tmdbId,
+                    id: item.tmdbId.toString(),
                     title: item.label || "Unknown Title",
                     name: item.label || "Unknown Title",
                     poster_path: null,
@@ -45,8 +45,8 @@ export async function GET(req: NextRequest, { params }: { params: { username: st
     return NextResponse.json(fullFavorites);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { username: string } }) {
-    const { username } = params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
+    const { username } = await params;
     const body = await req.json();
     const { tmdbId, mediaType, label, slotIndex } = body;
 

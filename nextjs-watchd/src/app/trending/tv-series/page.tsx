@@ -1,6 +1,7 @@
 import React from "react";
 import { getPopularTv } from "@/lib/tmdb";
 import Link from "next/link";
+import Image from 'next/image'
 import { IoIosArrowBack } from "react-icons/io";
 
 export default async function Page() {
@@ -37,10 +38,13 @@ export default async function Page() {
                     <div key={movie.id} className="flex flex-col bg-card rounded-xl border border-input shadow-sm overflow-hidden">
                         <div>
                             {movie.poster_path ? (
-                                <img
+                                <Image
                                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    width={500}
+                                    height={750}
                                     alt={movie.name}
                                     className="rounded"
+                                    priority
                                 />
                             ) : (
                                 <div className="bg-muted h-72 mb-2 rounded"/>

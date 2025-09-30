@@ -1,30 +1,30 @@
 "use client";
 
-import { notFound, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import {IoIosArrowBack} from "react-icons/io";
 import Link from "next/link";
-import React, { useEffect, useState, use } from "react";
-import { getMovieDetails, TmdbMovieDetails } from "@/lib/tmdb";
-
-interface Props {
-    params: Promise<{ username: string }>;
-}
+import Image from 'next/image'
+import React, {use, useEffect, useState} from "react";
+import { getMovieDetails } from "@/lib/tmdb";
 
 interface PrismaUserMovie {
-    id: number; // Prisma's internal ID for the UserMovie record
+    id: number;
     userId: number;
-    tmdbId: number; // The TMDB movie ID
-    label: string; // The movie title (as stored in your DB)
+    tmdbId: number;
+    label: string;
     createdAt: string;
 }
 
-interface DisplayMovie extends PrismaUserMovie, Partial<TmdbMovieDetails> {}
+interface MovieListItem extends PrismaUserMovie {
+    poster_path: string | null;
+    release_date: string | null;
+    vote_average: number | null;
+}
 
-export default function Page({ params }: Props) {
+export default function Page({ params }: { params: Promise<{ username: string }> }) {
     const { username } = use(params);
-    const router = useRouter();
 
-    const [movieList, setMovieList] = useState<any[]>([]);
+    const [movieList, setMovieList] = useState<MovieListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -82,7 +82,7 @@ export default function Page({ params }: Props) {
                 Back to {username}
             </Link>
 
-            <h1 className="text-2xl font-bold mb-4">{username}'s Movie List</h1>
+            <h1 className="text-2xl font-bold mb-4">{`${username}'s Movie List`}</h1>
 
             {loading ? (
                 <div className="text-center text-muted-foreground py-8">Loading movies...</div>
@@ -99,11 +99,11 @@ export default function Page({ params }: Props) {
                             >
                                 {/* Display Poster */}
                                 {movie.poster_path ? (
-                                    <img
+                                    <Image
                                         src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`}
                                         alt={movie.label} // Use the label from your database as alt text
-                                        width={342}
-                                        height={513} // TMDB poster aspect ratio is typically 2:3, so height = width * 1.5
+                                        width={500}
+                                        height={750}
                                         className="w-full rounded-t-xl object-cover aspect-[2/3]"
                                     />
                                 ) : (

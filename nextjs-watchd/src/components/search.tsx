@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/components/hooks/use-debounce";
 import Link from "next/link";
+import Image from 'next/image'
 import { IoIosSearch } from "react-icons/io";
 import { TmdbSearchResult } from "@/lib/tmdb";
 
@@ -126,9 +127,11 @@ export const Search = ({ placeholder }: { placeholder: string }) => {
                                             <li key={item.id}>
                                                 <Link href={href} className="flex gap-2 p-2 cursor-pointer hover:bg-accent">
                                                     {item.poster_path ? (
-                                                        <img
+                                                        <Image
                                                             src={`https://image.tmdb.org/t/p/w92${item.poster_path}`}
-                                                            alt={item.title || item.name}
+                                                            width={500}
+                                                            height={750}
+                                                            alt={item.title || item.name || "Unknown"}
                                                             className="aspect-2/3 w-12 object-cover rounded"
                                                         />
                                                     ) : (
@@ -170,7 +173,7 @@ export const Search = ({ placeholder }: { placeholder: string }) => {
                                 </ul>
                             )}
                             {!isLoading && hasSearched && results.length === 0 && (
-                                <p className="p-4 text-center text-muted-foreground">No results found for "{query}".</p>
+                                <p className="p-4 text-center text-muted-foreground">{`No results found for "${query}".`}</p>
                             )}
                         </div>
                     )}

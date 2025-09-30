@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from 'next/image'
 import { getPopularTv } from "@/lib/tmdb";
 import {FaArrowRightLong} from "react-icons/fa6";
 import {Button} from "@/components/ui/button";
@@ -46,8 +47,10 @@ export const TrendingTv = async () => {
                     <div key={show.id} className="flex flex-col bg-card rounded-xl border border-input shadow-sm overflow-hidden">
                         <div>
                             {show.poster_path ? (
-                                <img
+                                <Image
                                     src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                                    width={500}
+                                    height={750}
                                     alt={show.name}
                                     className="rounded"
                                 />

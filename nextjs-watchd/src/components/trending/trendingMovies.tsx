@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from 'next/image'
 import { getPopularMovies } from "@/lib/tmdb";
 import { Button } from "@/components/ui/button";
 import { FaArrowRightLong } from "react-icons/fa6";
@@ -46,8 +47,10 @@ export const TrendingMovies = async () => {
                     <div key={movie.id} className="flex flex-col bg-card rounded-xl border border-input shadow-sm overflow-hidden">
                         <div>
                             {movie.poster_path ? (
-                                <img
+                                <Image
                                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    width={500}
+                                    height={750}
                                     alt={movie.title}
                                     className="rounded"
                                 />

@@ -3,6 +3,7 @@ import imageUrlBuilder from "@sanity/image-url";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 import { client } from "@/sanity/client";
 import Link from "next/link";
+import Image from 'next/image'
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0]`;
 
@@ -17,9 +18,10 @@ const options = { next: { revalidate: 30 } };
 export default async function PostPage({
                                            params,
                                        }: {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 }) {
-    const post = await client.fetch<SanityDocument>(POST_QUERY, { slug: params.slug }, options);
+    const { slug } = await params;
+    const post = await client.fetch<SanityDocument>(POST_QUERY, { slug }, options);
 
     if (!post) {
         return (
@@ -39,7 +41,7 @@ export default async function PostPage({
                 ← Back to posts
             </Link>
             {postImageUrl && (
-                <img
+                <Image
                     src={postImageUrl}
                     alt={post.title}
                     className="aspect-video rounded-xl"

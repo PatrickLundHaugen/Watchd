@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getNowPlayingMovies } from "@/lib/tmdb";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         const nowPlayingData = await getNowPlayingMovies();
         return NextResponse.json(nowPlayingData);

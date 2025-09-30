@@ -1,4 +1,3 @@
-// app/user/[username]/page.tsx
 "use client";
 
 import { notFound, useRouter } from "next/navigation";
@@ -6,7 +5,7 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter, // Keep CardFooter import for the main user card
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
@@ -19,18 +18,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { use, useEffect, useState } from "react";
+import {use, useEffect, useState} from "react";
 import { useUser } from "@/components/context/user-context";
-import type { TmdbMovieDetails, TmdbTvDetails } from "@/lib/tmdb";
+import type {TmdbMovieDetails, TmdbMultiSearchResponse, TmdbSearchResult, TmdbTvDetails} from "@/lib/tmdb";
 import Link from "next/link";
-
-interface Props {
-    params: Promise<{ username: string }>;
-}
+import Image from 'next/image'
 
 type TmdbItem = TmdbMovieDetails | TmdbTvDetails;
 
-export default function Page({ params }: Props) {
+function isPerson(item: TmdbItem | TmdbSearchResult): item is TmdbSearchResult & { media_type: "person" } {
+    return "media_type" in item && item.media_type === "person" && "known_for_department" in item;
+}
+
+export default function Page({ params }: { params: Promise<{ username: string }> }) {
     const { username } = use(params);
     const router = useRouter();
     const { user, setUser } = useUser();
@@ -40,7 +40,7 @@ export default function Page({ params }: Props) {
 
     const [openDialogIndex, setOpenDialogIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<TmdbSearchResult[]>([]);
     const [loadingSearch, setLoadingSearch] = useState(false);
 
     const [movieCount, setMovieCount] = useState<number | null>(null);
@@ -57,7 +57,6 @@ export default function Page({ params }: Props) {
 
         const fetchItemsAndCounts = async () => {
             try {
-                // Fetch favorites (existing logic)
                 const favRes = await fetch(`/api/user/${username}/favorite`);
 
                 if (!favRes.ok) {
@@ -68,11 +67,10 @@ export default function Page({ params }: Props) {
                     setFavorites(favFull);
                 }
 
-                // NEW: Fetch movie counts
                 const countsRes = await fetch(`/api/user/${username}/counts`);
                 if (!countsRes.ok) {
                     console.error(`Failed to fetch counts: ${countsRes.status} ${countsRes.statusText}`);
-                    setMovieCount(0); // Set to 0 or null on error
+                    setMovieCount(0);
                     setSeriesCount(0);
                 } else {
                     const countsData = await countsRes.json();
@@ -81,12 +79,12 @@ export default function Page({ params }: Props) {
                 }
 
 
-                setRecents([]); // Temporarily keep recents empty
+                setRecents([]);
             } catch (error) {
                 console.error("Error fetching initial user items or counts:", error);
                 setFavorites([]);
                 setRecents([]);
-                setMovieCount(0); // Ensure count is reset on error
+                setMovieCount(0);
                 setSeriesCount(0);
             }
         };
@@ -110,9 +108,10 @@ export default function Page({ params }: Props) {
         setLoadingSearch(true);
         try {
             const res = await fetch(`/api/search/multi?query=${encodeURIComponent(query)}`);
-            const data = await res.json();
+            const data: TmdbMultiSearchResponse = await res.json();
+
             const filtered = data.results.filter(
-                (item: any) => item.media_type === "movie" || item.media_type === "tv"
+                (item: TmdbSearchResult) => item.media_type === "movie" || item.media_type === "tv"
             );
             setSearchResults(filtered);
         } catch (err) {
@@ -125,7 +124,7 @@ export default function Page({ params }: Props) {
 
     const displayedResults = searchResults.slice(0, 10);
 
-    const handleAddFavorite = async (item: any) => {
+    const handleAddFavorite = async (item: TmdbSearchResult) => {
         if (openDialogIndex === null) return;
 
         const res = await fetch(`/api/user/${username}/favorite`, {
@@ -239,8 +238,10 @@ export default function Page({ params }: Props) {
 
                                                     <div>
                                                         {item.poster_path ? (
-                                                            <img
+                                                            <Image
                                                                 src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                                                                width={500}
+                                                                height={750}
                                                                 alt={('title' in item ? item.title : item.name) || "Poster"}
                                                                 className="rounded"
                                                             />
@@ -302,9 +303,11 @@ export default function Page({ params }: Props) {
                                                                 }}
                                                             >
                                                                 {item.poster_path ? (
-                                                                    <img
+                                                                    <Image
                                                                         src={`https://image.tmdb.org/t/p/w92${item.poster_path}`}
-                                                                        alt={item.title || item.name}
+                                                                        width={500}
+                                                                        height={750}
+                                                                        alt={item.title || item.name || "Poster"}
                                                                         className="aspect-2/3 w-12 object-cover rounded"
                                                                     />
                                                                 ) : (
@@ -314,11 +317,18 @@ export default function Page({ params }: Props) {
                                                                 )}
                                                                 <div className="flex flex-col justify-between">
                                                                     <div>
-                                                                        <p className="leading-none font-bold">{item.title || item.name}</p>
+                                                                        <p className="leading-none font-bold">{"title" in item && item.title || item.name}</p>
                                                                         <p className="text-muted-foreground text-sm">
-                                                                            {item.media_type === "person"
-                                                                                ? item.known_for_department || "Person"
-                                                                                : (item.first_air_date || item.release_date)?.slice(0, 4) || "—"}
+                                                                            {(() => {
+                                                                                if (isPerson(item)) {
+                                                                                    return item.known_for_department || "Person";
+                                                                                } else if ("first_air_date" in item) {
+                                                                                    return item.first_air_date?.slice(0, 4) || "—";
+                                                                                } else if ("release_date" in item) {
+                                                                                    return item.release_date?.slice(0, 4) || "—";
+                                                                                }
+                                                                                return "—";
+                                                                            })()}
                                                                         </p>
                                                                     </div>
                                                                     <p className="text-sm">
@@ -336,7 +346,7 @@ export default function Page({ params }: Props) {
                                                     )}
                                                     {!loadingSearch && searchQuery.length >= 2 && displayedResults.length === 0 && (
                                                         <li className="p-4 text-center text-muted-foreground">
-                                                            No results found for "{searchQuery}".
+                                                            {`No results found for "${searchQuery}".`}
                                                         </li>
                                                     )}
                                                 </ul>
@@ -353,8 +363,10 @@ export default function Page({ params }: Props) {
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                             {recents.map((item, i) => (
                                 <div key={i} className="bg-muted rounded p-2">
-                                    <img
+                                    <Image
                                         src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                                        width={500}
+                                        height={750}
                                         alt={"title" in item ? item.title : item.name}
                                         className="w-full rounded mb-2"
                                     />

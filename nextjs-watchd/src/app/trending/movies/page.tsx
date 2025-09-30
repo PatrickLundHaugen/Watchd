@@ -1,6 +1,7 @@
 import React from "react";
 import { getPopularMovies } from "@/lib/tmdb";
 import Link from "next/link";
+import Image from 'next/image'
 import {IoIosArrowBack} from "react-icons/io";
 
 export default async function Page() {
@@ -33,14 +34,17 @@ export default async function Page() {
             <Link href="/" className="inline-flex items-center gap-1 hover:underline"><IoIosArrowBack />Back to home</Link>
             <h1 className="text-3xl font-semibold">All Trending Movies</h1>
             <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {movies.map((movie) => (
+                {movies.map((movie, index) => (
                     <div key={movie.id} className="flex flex-col bg-card rounded-xl border border-input shadow-sm overflow-hidden">
                         <div>
                             {movie.poster_path ? (
-                                <img
+                                <Image
                                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                                    width={500}
+                                    height={750}
                                     alt={movie.title}
                                     className="rounded"
+                                    priority={index === 0}
                                 />
                             ) : (
                                 <div className="bg-muted h-72 mb-2 rounded"/>
